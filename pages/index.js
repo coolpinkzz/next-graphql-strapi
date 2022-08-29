@@ -1,8 +1,45 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import {useQuery} from "@apollo/client";
+import Head from "next/head";
+import Image from "next/image";
+import styles from "../styles/Home.module.css";
+import GET_PRODUCTS from "./lib/queries/get_product";
+//import { gql } from "@apollo/client";
+//import client from "../apollo-client";
+
+//export async function getStaticProps() {
+//  const { data } = await client.query({
+//    query: gql`
+//      query {
+//        products {
+//          data {
+//            attributes {
+//              name
+//              desc
+//              image_url {
+//                data {
+//                  attributes {
+//                    url
+//                  }
+//                }
+//              }
+//            }
+//          }
+//        }
+//      }
+//    `,
+//  });
+
+//  return {
+//    props: {
+//      products: data.products.data[0]
+//    },
+//  };
+//}
 
 export default function Home() {
+    const {loading, error, data} = useQuery(GET_PRODUCTS);
+    if (loading) return 'Loading...';
+    if (error) return `Error! ${error.message}`;
   return (
     <div className={styles.container}>
       <Head>
@@ -17,38 +54,20 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
+          Get started by editing{" "}
           <code className={styles.code}>pages/index.js</code>
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+            {data.products.data.map((item) => {
+                return(
+                    <a href="https://nextjs.org/docs" className={styles.card}>
+                        <Image width={600} height={350} src={`http://localhost:1337${item?.attributes.image_url.data.attributes.url}`} alt="bat_image"/>
+                        <h2>{item?.attributes.name} &rarr;</h2>
+                        <p>{item?.attributes.desc}</p>
+                    </a>
+                )
+            })}
         </div>
       </main>
 
@@ -58,12 +77,12 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <span className={styles.logo}>
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>
     </div>
-  )
+  );
 }
